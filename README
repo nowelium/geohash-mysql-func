@@ -42,3 +42,7 @@ latidude0, longitude0
 latidude1, longitude1
 latidude2, longitude2
 
+MORE INFORMATION
+----
+GeoHash on Wikipedia (http://en.wikipedia.org/wiki/Geohash)
+GeoHash Routines for Javascript (http://github.com/davetroy/geohash-js)
