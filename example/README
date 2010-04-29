@@ -1,0 +1,86 @@
+geohash example
+----
+
+
+Geo data(JP.txt, US.txt):
+----
+using www.geonames.org (http://download.geonames.org/export/zip/)
+geo data licensed: Creative Commons Attribution 3.0 License
+
+
+example usage:
+----
+
+MySQL 5.1.x
+
+install:
+----
+    shell > mysql -u xxx -p --local-infile < example.sql
+
+find name of city near tokyo tower (http://geohash.org/xn76u52kuf71):
+----
+    shell > mysql -u xxx -p geo_example < find_city_near_tokyo_tower.sql
+
+find name of city near eiffel tower (http://geohash.org/u09tunqu4q76):
+----
+    shell > mysql -u xxx -p geo_example < find_city_near_eiffel_tower.sql
+
+tables:
+----
+
+CREATE TABLE `postal_code` (
+  `postal_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `country_code` char(2) NOT NULL,
+  `postal_code` varchar(10) DEFAULT NULL,
+  `place_name` varchar(100) DEFAULT NULL,
+  `admin_name1` varchar(100) DEFAULT NULL,
+  `admin_code1` varchar(20) DEFAULT NULL,
+  `admin_name2` varchar(100) DEFAULT NULL,
+  `admin_code2` varchar(20) DEFAULT NULL,
+  `admin_name3` varchar(100) DEFAULT NULL,
+  `latitude` double(10,7) DEFAULT NULL,
+  `longitude` double(10,7) DEFAULT NULL,
+  KEY `idx_postal_id` (`postal_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `postal_geohash` (
+  `geo_hash` varchar(12) NOT NULL,
+  `postal_id` int(10) unsigned NOT NULL,
+  KEY `idx_geo_hash` (`geo_hash`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+location search:
+----
+
+mysql> select geohash_encode(35.658329, 139.746645, 6);
++------------------------------------------+
+| geohash_encode(35.658329, 139.746645, 6) |
++------------------------------------------+
+| xn76u5                                   | 
++------------------------------------------+
+
+
+mysql> select postal_id from postal_geohash where substr(geo_hash, 1, 6) = 'xn76u5';
++-----------+
+| postal_id |
++-----------+
+|       139 | 
+|       140 | 
+|       141 | 
++-----------+
+
+
+mysql> select country_code, place_name, admin_name1, admin_name2, admin_name3 from postal_code where postal_id in(139, 140, 141);
++--------------+------------------------------------+-------------+-------------+-------------+
+| country_code | place_name                         | admin_name1 | admin_name2 | admin_name3 |
++--------------+------------------------------------+-------------+-------------+-------------+
+| JP           | Shibakouen                         | Toukyouto   | Minatoku    |             | 
+| JP           | Shibadaimon                        | Toukyouto   | Minatoku    |             | 
+| JP           | Hamamatsuchou(Tsuginobiruwonozoku) | Toukyouto   | Minatoku    |             | 
++--------------+------------------------------------+-------------+-------------+-------------+
+
+shortcut:
+mysql> call find_near_city(40.689650, -74.045287, 6);
+-- http://geohash.org/dr5r7p3f7u82
+
